@@ -6,8 +6,12 @@ import (
 
 	// chathandler "github.com/bishal-dhakal/project-management/internal/handlers/chat"
 
+	"github.com/bishal-dhakal/project-management/internal/adapter/handlers"
+	authhandler "github.com/bishal-dhakal/project-management/internal/adapter/handlers/auth"
+	storage "github.com/bishal-dhakal/project-management/internal/adapter/storage/postgres"
+	userrepo "github.com/bishal-dhakal/project-management/internal/adapter/storage/user"
 	"github.com/bishal-dhakal/project-management/internal/config"
-	storage "github.com/bishal-dhakal/project-management/internal/adapter/storage"
+	authservice "github.com/bishal-dhakal/project-management/internal/core/services/user"
 )
 
 func main() {
@@ -20,8 +24,14 @@ func main() {
 	db := storage.NewPostgresConnection(cfg)
 	fmt.Println("Loading database:", db)
 
-	fmt.Println("Websocket server started on :8080")
-	err := http.ListenAndServe(":8080", nil)
+	userRepo := userrepo.NewUserRepository(db)
+	authSvc := authservice.New(userRepo)
+	authHandler := authhandler.NewHandler(authSvc)
+
+	mux := handlers.NewRouter(authHandler)
+
+	fmt.Println("Server started on :" + cfg.Server_Port)
+	err := http.ListenAndServe(":"+cfg.Server_Port, mux)
 	if err != nil {
 		fmt.Println("Error starting server:", err)
 	}
