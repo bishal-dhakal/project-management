@@ -8,6 +8,7 @@ import (
 
 	"github.com/bishal-dhakal/project-management/internal/adapter/handlers"
 	authhandler "github.com/bishal-dhakal/project-management/internal/adapter/handlers/auth"
+	migrator "github.com/bishal-dhakal/project-management/internal/adapter/storage"
 	storage "github.com/bishal-dhakal/project-management/internal/adapter/storage/postgres"
 	userrepo "github.com/bishal-dhakal/project-management/internal/adapter/storage/user"
 	"github.com/bishal-dhakal/project-management/internal/config"
@@ -22,16 +23,19 @@ func main() {
 	cfg := config.LoadConfig()
 
 	db := storage.NewPostgresConnection(cfg)
-	fmt.Println("Loading database:", db)
 
+	err := migrator.RunMigrations(db, "./internal/adapter/storage/migrations/")
+	if err != nil {
+		fmt.Printf("Something went wrong :", err)
+	}
 	userRepo := userrepo.NewUserRepository(db)
 	authSvc := authservice.New(userRepo)
 	authHandler := authhandler.NewHandler(authSvc)
 
 	mux := handlers.NewRouter(authHandler)
 
-	fmt.Println("Server started on :" + cfg.Server_Port)
-	err := http.ListenAndServe(":"+cfg.Server_Port, mux)
+	fmt.Println("Server started on :" + cfg.ServerPort)
+	err = http.ListenAndServe(":"+cfg.ServerPort, mux)
 	if err != nil {
 		fmt.Println("Error starting server:", err)
 	}

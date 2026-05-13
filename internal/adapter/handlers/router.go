@@ -10,8 +10,8 @@ func NewRouter(
 ) http.Handler{
 	mux := http.NewServeMux()
 	
-	mux.HandleFunc("/auth/register", authHandler.Register)
-	mux.HandleFunc("/auth/login", authHandler.Login)
+	mux.HandleFunc("POST /auth/register", authHandler.Register)
+	mux.HandleFunc("POST /auth/login", authHandler.Login)
 
 	return mux
 }

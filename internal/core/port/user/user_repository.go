@@ -2,10 +2,12 @@ package userport
 
 import (
 	"context"
+	"database/sql"
+
 	userdomain "github.com/bishal-dhakal/project-management/internal/core/domain/user"
 )
 
 type UserRepository interface {
-	Save(ctx context.Context, user userdomain.User) error
+	Save(ctx context.Context, user userdomain.User) (sql.Result, error)
 	FindByEmail(ctx context.Context, email string) (*userdomain.User, error)
 }

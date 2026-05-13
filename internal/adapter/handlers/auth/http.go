@@ -3,7 +3,7 @@ package auth
 import (
     "encoding/json"
     "net/http"
-    userport "github.com/bishal-dhakal/project-management/internal/core/port/user"
+    userport "github.com/bishal-dhakal/project-management/internal/core/port/auth"
 )
 
 type Handler struct {
@@ -25,6 +25,11 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
     var req authRequest
     if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
         http.Error(w, "invalid request", http.StatusBadRequest)
+        return
+    }
+
+    if len(req.Email) <= 0 && len(req.Password) <= 0 {
+        http.Error(w, "email and password is empty", http.StatusBadRequest)
         return
     }
 
