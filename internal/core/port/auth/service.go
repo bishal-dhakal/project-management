@@ -1,4 +1,4 @@
-package authport
+package auth
 
 import (
 	"context"

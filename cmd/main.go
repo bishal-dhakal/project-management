@@ -13,6 +13,7 @@ import (
 	userrepo "github.com/bishal-dhakal/project-management/internal/adapter/storage/user"
 	"github.com/bishal-dhakal/project-management/internal/config"
 	authservice "github.com/bishal-dhakal/project-management/internal/core/services/user"
+	jwtservice "github.com/bishal-dhakal/project-management/internal/adapter/jwt"
 )
 
 func main() {
@@ -29,7 +30,9 @@ func main() {
 		fmt.Printf("Something went wrong :", err)
 	}
 	userRepo := userrepo.NewUserRepository(db)
-	authSvc := authservice.New(userRepo)
+
+	jwt := jwtservice.NewService("nepal123")
+	authSvc := authservice.New(userRepo,jwt)
 	authHandler := authhandler.NewHandler(authSvc)
 
 	mux := handlers.NewRouter(authHandler)

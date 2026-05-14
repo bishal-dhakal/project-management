@@ -1,4 +1,4 @@
-package userrepo
+package user
 
 import (
 	"context"
@@ -42,6 +42,6 @@ func (u *userRepository) Save(ctx context.Context, user userdomain.User) (sql.Re
 	return result, nil
 }
 
-func NewUserRepository(db *sqlx.DB) userport.UserRepository {
+func NewUserRepository(db *sqlx.DB) userport.Repository {
 	return &userRepository{db: db}
 }

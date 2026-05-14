@@ -3,19 +3,26 @@ package userservice
 import (
 	"context"
 	"errors"
+	"time"
 
 	userdomain "github.com/bishal-dhakal/project-management/internal/core/domain/user"
 	authport "github.com/bishal-dhakal/project-management/internal/core/port/auth"
 	userport "github.com/bishal-dhakal/project-management/internal/core/port/user"
 	hashPassword "github.com/bishal-dhakal/project-management/internal/core/util"
+	token "github.com/bishal-dhakal/project-management/internal/core/port/token"
+
 )
 
 type userService struct {
-	repo userport.UserRepository
+	repo userport.Repository
+	token token.Service
 }
 
-func New(repo userport.UserRepository) authport.AuthService {
-	return &userService{repo: repo}
+func New(repo userport.Repository, token token.Service) authport.AuthService {
+	return &userService{
+		repo: repo,
+		token: token,
+	}
 }
 
 func (s *userService) Register(ctx context.Context, email, password string) (string, error) {
@@ -68,6 +75,8 @@ func (s *userService) Login(ctx context.Context, email, password string) (string
 	if !verified {
 		return " ", errors.New("email/password incorrect")
 	}
+
+	token, err := s.token.GenerateToken(user.ID, user.Email, 24 * time.Hour)
 	// TODO: generate JWT
-	return "", nil
+	return token, nil
 }
